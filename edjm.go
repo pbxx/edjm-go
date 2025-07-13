@@ -24,9 +24,10 @@ var JournalState State = State{
 	SpecifyJournal: "",
 }
 
+// var logger = zerolog.New(os.Stdout).Level(zerolog.TraceLevel).With().Timestamp().Logger()
 // var logger = zerolog.New(os.Stdout).Level(zerolog.InfoLevel).With().Timestamp().Logger()
-
-var logger = zerolog.New(os.Stdout).Level(3).With().Timestamp().Logger()
+// use error level logging only for production
+var logger = zerolog.New(os.Stdout).Level(zerolog.ErrorLevel).With().Timestamp().Logger()
 
 func GetJournalDir() (string, error) {
 	// get the user's home directory
@@ -237,23 +238,23 @@ func StartSpecific(JournalDir string, specific string, callback func(EventCallba
 				splitFilename := strings.Split(filenameOnly, ".")
 				extension := splitFilename[len(splitFilename)-1]
 				name := splitFilename[0]
-
+				logger.Debug().Msg(fmt.Sprint("File changed:", name, "with extension:", extension))
 				switch extension {
 				case "log":
 					// this is a journal file change
 					// Load a fresh journal
 					parsedLines, rawLines, err := LoadLatestJournal()
 					if err != nil {
-						logger.Info().Msg(fmt.Sprint("Error loading journal:", err))
+						logger.Error().Msg(fmt.Sprint("Error loading journal:", err))
 						return
 					}
 
 					// if new entries were found, call the callback for each entry
 					if len(parsedLines) != 0 {
-						logger.Info().Msg(fmt.Sprint("Handling ", len(parsedLines), " new entries from journal file..."))
+						logger.Debug().Msg(fmt.Sprint("Handling ", len(parsedLines), " new entries from journal file..."))
 						for i, entry := range parsedLines {
 							eventType := entry["event"].(string)
-							logger.Info().Msg(fmt.Sprint("Journal file changed:", eventType))
+							logger.Debug().Msg(fmt.Sprint("Journal file changed:", eventType))
 							callback(EventCallback{
 								EventType: "journalEvent",
 								EventName: eventType,
@@ -265,12 +266,12 @@ func StartSpecific(JournalDir string, specific string, callback func(EventCallba
 				case "json":
 					// this is a data file change
 					// Load the data file
-					logger.Info().Msg(fmt.Sprint("Data file changed:", name))
+					logger.Debug().Msg(fmt.Sprint("Data file changed:", name))
 					dataFile, rawDataFile, err := LoadDataFile(name)
 					if err != nil {
-						logger.Info().Msg(fmt.Sprint("Error loading data file:", err))
+						logger.Debug().Msg(fmt.Sprint("Error loading data file:", err))
 						if err.Error() == "empty data file" {
-							logger.Info().Msg(fmt.Sprint("Skipping empty data file:", name))
+							logger.Debug().Msg(fmt.Sprint("Skipping empty data file:", name))
 						} else {
 							return
 						}
@@ -281,13 +282,13 @@ func StartSpecific(JournalDir string, specific string, callback func(EventCallba
 						// call the callback with the data file
 						callback(EventCallback{
 							EventType: "dataFile",
-							EventName: filenameOnly,
+							EventName: name,
 							Entry:     dataFile,
 							RawEntry:  rawDataFile, // raw entry is not used for data files
 						})
 					}
 				default:
-					logger.Info().Msg(fmt.Sprint("Unknown file type changed:", filenameOnly))
+					logger.Error().Msg(fmt.Sprint("Unknown file type changed:", filenameOnly))
 				}
 			}
 		case err, ok := <-watcher.Errors:

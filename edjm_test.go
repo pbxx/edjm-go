@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -17,18 +16,16 @@ func handleJournalEvent(ec EventCallback) {
 		logger.Info().Msg(fmt.Sprintf("Handling journal event: %s", ec.EventName))
 	case "dataFile":
 		logger.Info().Msg(fmt.Sprintf("Handling dataFile event: %s", ec.EventName))
-		logger.Info().Msg(fmt.Sprintf("Data file entry: %v", string(ec.RawEntry)))
+		logger.Debug().Msg(fmt.Sprintf("Data file entry: %v", string(ec.RawEntry)))
 	default:
 		log.Info().Msg(fmt.Sprint("Unknown event type:", ec.EventType))
 	}
-
-	logger.Info().Msg(fmt.Sprintf("Handling journal event: %s", ec.EventName))
 }
 
 func TestLoad(t *testing.T) {
 	// readJournalFile("C:\\Users\\dlewis\\Saved Games\\Frontier Developments\\Elite Dangerous\\Journalog.2025-06-01T140511.01.log")
 	// import JSON config file if exists
-	zerolog.SetGlobalLevel(zerolog.TraceLevel)
+	// zerolog.SetGlobalLevel(zerolog.TraceLevel)
 	// zerolog.SetGlobalLevel(3)
 
 	// Start the journal manager
