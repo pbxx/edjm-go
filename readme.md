@@ -13,11 +13,13 @@ Start EDJM by calling `edjm.Start` in a goroutine, passing a function that accep
 ```go
 package main
 
+// import EDJM
 import (
 	edjm "github.com/pbxx/edjm-go"
 )
 
-func handleJournalEvent(ec edjm.EventCallback) {
+// create event handler
+func handleEvent(ec edjm.EventCallback) {
 	switch ec.EventType {
 	case "journalEvent":
 		// Latest journal.log event received
@@ -33,7 +35,7 @@ func handleJournalEvent(ec edjm.EventCallback) {
 
 main () {
     // start EDJM in a goroutine
-    go edjm.Start(handleJournalEvent)
+    go edjm.Start(handleEvent)
 
     // block main forever so program stays on
     <-make(chan struct{})
