@@ -1,15 +1,19 @@
 ![EDJM Icon](./assets/icon.png)
 
 # Elite Dangerous Journal Manager for Golang
+
 An easy, pure-go module for watching and parsing Elite Dangerous journal and JSON file events
 
 ## Installation
+
 ```sh
 go get github.com/pbxx/edjm-go
 ```
 
 ## Usage
+
 Start EDJM by calling `edjm.Start` in a goroutine, passing a function that accepts an `EventCallback`:
+
 ```go
 package main
 
@@ -23,13 +27,12 @@ func handleEvent(ec edjm.EventCallback) {
 	switch ec.EventType {
 	case "journalEvent":
 		// Latest journal.log event received
-        fmt.Printf("New %s event received from journal\n", ec.EventName)
+		fmt.Printf("New %s event received from journal\n", ec.EventName)
 	case "dataFile":
 		// JSON data file update received
         fmt.Printf("Data file %s.json updated\n", ec.EventName)
-
 	default:
-		log.Info().Msg(fmt.Sprint("Unknown event type:", ec.EventType))
+        log.Info().Msg(fmt.Sprint("Unknown event type:", ec.EventType))
 	}
 }
 
@@ -43,6 +46,7 @@ main () {
 ```
 
 `EventCallback` structure:
+
 ```go
 type EventCallback struct {
 	// EventType is either "journalEvent" or "dataFile"
